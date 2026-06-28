@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "runWinget": true,
+  "runWindowsUpdates": false,
+  "runOffice": false,
+  "runDrivers": false
+}

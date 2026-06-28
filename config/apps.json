@@ -1,0 +1,32 @@
+{
+  "winget": [
+    {
+      "id": "RustDesk.RustDesk",
+      "name": "RustDesk"
+    },
+    {
+      "id": "Google.Chrome",
+      "name": "Google Chrome"
+    },
+    {
+      "id": "Mozilla.Firefox",
+      "name": "Mozilla Firefox"
+    },
+    {
+      "id": "7zip.7zip",
+      "name": "7-Zip"
+    },
+    {
+      "id": "Adobe.Acrobat.Reader.64-bit",
+      "name": "Adobe Acrobat Reader"
+    }
+  ],
+
+  "office": {
+    "enabled": false
+  },
+
+  "drivers": {
+    "enabled": false
+  }
+}
