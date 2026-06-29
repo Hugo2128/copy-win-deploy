@@ -82,6 +82,8 @@ $RepoUrl = "https://github.com/Hugo2128/copy-win-deploy.git"
 $TaskName = "Copyshop Pull And Apply"
 $PullScript = Join-Path $RepoPath "scripts\Pull-And-Apply.ps1"
 $StagedOfficeKeyPath = "C:\Windows\Setup\Scripts\office-key.txt"
+$MaintenanceConfigPath = Join-Path $RepoPath "config\maintenance.json"
+$PrepareUwfScriptPath = Join-Path $RepoPath "scripts\Prepare-UWF.ps1"
 
 New-Item -ItemType Directory -Path $BasePath, $LogPath, $StatePath, $CachePath, $SecretsPath -Force | Out-Null
 
@@ -198,6 +200,36 @@ function Invoke-InitialApply {
     }
 }
 
+function Invoke-UwfPreparationIfEnabled {
+    if (-not (Test-Path -LiteralPath $MaintenanceConfigPath)) {
+        return
+    }
+
+    $maintenance = Get-Content -LiteralPath $MaintenanceConfigPath -Raw | ConvertFrom-Json
+    if ($maintenance.prepareUwfOnBootstrap -ne $true) {
+        return
+    }
+
+    if (-not (Test-Path -LiteralPath $PrepareUwfScriptPath)) {
+        throw "Prepare-UWF script not found: $PrepareUwfScriptPath"
+    }
+
+    $overlaySizeMB = 51200
+    if ($maintenance.uwfOverlaySizeMB) {
+        $overlaySizeMB = [int] $maintenance.uwfOverlaySizeMB
+    }
+
+    $protectedVolume = "C:"
+    if (-not [string]::IsNullOrWhiteSpace($maintenance.uwfProtectedVolume)) {
+        $protectedVolume = [string] $maintenance.uwfProtectedVolume
+    }
+
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PrepareUwfScriptPath -OverlaySizeMB $overlaySizeMB -ProtectedVolume $protectedVolume
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) {
+        throw "Prepare-UWF failed with code $LASTEXITCODE"
+    }
+}
+
 try {
     Wait-ForInternet
     Wait-ForWinget
@@ -212,6 +244,7 @@ try {
     Stage-OfficeKey
     Register-PullTask
     Invoke-InitialApply
+    Invoke-UwfPreparationIfEnabled
 
     Restart-Computer -Force
 } finally {

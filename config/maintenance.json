@@ -4,5 +4,8 @@
   "runWindowsUpdates": false,
   "runOffice": true,
   "runDrivers": false,
-  "forceApply": false
+  "forceApply": false,
+  "prepareUwfOnBootstrap": true,
+  "uwfOverlaySizeMB": 51200,
+  "uwfProtectedVolume": "C:"
 }
