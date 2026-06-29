@@ -2,16 +2,21 @@
 
 $ErrorActionPreference = "Stop"
 
-$BasePath = "D:\CopyshopDeploy"
+$HelperPath = Join-Path $PSScriptRoot "Deploy-Paths.ps1"
+. $HelperPath
+
+$BasePath = Get-DeployBasePath
 $RepoPath = Join-Path $BasePath "repo"
 $LogPath = Join-Path $BasePath "logs"
 $StatePath = Join-Path $BasePath "state"
+$CachePath = Join-Path $BasePath "cache"
 
 $MaintenancePath = Join-Path $RepoPath "config\maintenance.json"
 $StateFile = Join-Path $StatePath "last-applied-commit.txt"
 
 New-Item -ItemType Directory -Path $LogPath -Force | Out-Null
 New-Item -ItemType Directory -Path $StatePath -Force | Out-Null
+New-Item -ItemType Directory -Path $CachePath -Force | Out-Null
 
 $LogFile = Join-Path $LogPath ("maintenance-" + (Get-Date -Format "yyyy-MM-dd-HH-mm-ss") + ".log")
 
@@ -47,7 +52,7 @@ try {
         exit 0
     }
 
-    if ($CurrentCommit -eq $LastAppliedCommit) {
+    if ($CurrentCommit -eq $LastAppliedCommit -and $maintenance.forceApply -ne $true) {
         Write-Host "Dieser Commit wurde bereits angewendet: $CurrentCommit"
         exit 0
     }
@@ -56,6 +61,14 @@ try {
 
     if ($maintenance.runWinget -eq $true) {
         & "$RepoPath\scripts\Install-Apps.ps1"
+    }
+
+    if ($maintenance.runOffice -eq $true) {
+        & "$RepoPath\scripts\Install-Office.ps1"
+    }
+
+    if ($maintenance.runDrivers -eq $true) {
+        & "$RepoPath\scripts\Install-Drivers.ps1"
     }
 
     if ($LASTEXITCODE -eq 0 -or $null -eq $LASTEXITCODE) {

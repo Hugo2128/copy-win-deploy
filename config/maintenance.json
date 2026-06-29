@@ -3,5 +3,6 @@
   "runWinget": true,
   "runWindowsUpdates": false,
   "runOffice": false,
-  "runDrivers": false
+  "runDrivers": false,
+  "forceApply": false
 }

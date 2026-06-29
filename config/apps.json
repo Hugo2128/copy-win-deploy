@@ -2,31 +2,58 @@
   "winget": [
     {
       "id": "RustDesk.RustDesk",
-      "name": "RustDesk"
+      "name": "RustDesk",
+      "scope": "machine"
     },
     {
       "id": "Google.Chrome",
-      "name": "Google Chrome"
+      "name": "Google Chrome",
+      "scope": "machine"
     },
     {
       "id": "Mozilla.Firefox",
-      "name": "Mozilla Firefox"
+      "name": "Mozilla Firefox",
+      "scope": "machine"
     },
     {
       "id": "7zip.7zip",
-      "name": "7-Zip"
+      "name": "7-Zip",
+      "scope": "machine"
     },
     {
       "id": "Adobe.Acrobat.Reader.64-bit",
-      "name": "Adobe Acrobat Reader"
+      "name": "Adobe Acrobat Reader",
+      "scope": "machine"
     }
   ],
 
   "office": {
-    "enabled": false
+    "enabled": false,
+    "odtUrl": "https://officecdn.microsoft.com/pr/wsus/setup.exe",
+    "configPath": "repo\\config\\office-2024.xml",
+    "keyFile": "secrets\\office-key.txt",
+    "cacheDir": "cache\\office"
   },
 
   "drivers": {
-    "enabled": false
+    "enabled": false,
+    "packages": [
+      {
+        "name": "Canon Generic Plus PS3 V3.40",
+        "enabled": false,
+        "url": "https://gdlp01.c-wss.com/gds/9/0100012919/01/GPlus_PS3_Driver_V340_32_64_00.exe",
+        "fileName": "GPlus_PS3_Driver_V340_32_64_00.exe",
+        "downloadOnly": true,
+        "extractDir": "cache\\drivers\\Canon-Generic-PS3-V340"
+      },
+      {
+        "name": "Canon Generic Plus PCL6 V3.40",
+        "enabled": false,
+        "url": "https://gdlp01.c-wss.com/gds/0/0100012920/01/GPlus_PCL6_Driver_V340_32_64_00.exe",
+        "fileName": "GPlus_PCL6_Driver_V340_32_64_00.exe",
+        "downloadOnly": true,
+        "extractDir": "cache\\drivers\\Canon-Generic-PCL6-V340"
+      }
+    ]
   }
 }

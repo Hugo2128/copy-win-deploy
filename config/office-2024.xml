@@ -1,0 +1,12 @@
+<Configuration>
+  <Add OfficeClientEdition="64" Channel="PerpetualVL2024">
+    <Product ID="ProPlus2024Volume" PIDKEY="__OFFICE_KEY__">
+      <Language ID="de-de" />
+    </Product>
+  </Add>
+  <Display Level="None" AcceptEULA="TRUE" />
+  <Property Name="AUTOACTIVATE" Value="1" />
+  <Property Name="FORCEAPPSHUTDOWN" Value="TRUE" />
+  <RemoveMSI />
+  <Updates Enabled="TRUE" />
+</Configuration>

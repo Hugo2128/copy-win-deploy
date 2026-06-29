@@ -2,7 +2,11 @@
 
 $ErrorActionPreference = "Stop"
 
-$RepoPath = "D:\CopyshopDeploy\repo"
+$HelperPath = Join-Path $PSScriptRoot "Deploy-Paths.ps1"
+. $HelperPath
+
+$BasePath = Get-DeployBasePath
+$RepoPath = Join-Path $BasePath "repo"
 $ConfigPath = Join-Path $RepoPath "config\apps.json"
 
 if (-not (Test-Path $ConfigPath)) {
@@ -17,22 +21,35 @@ winget source update
 foreach ($app in $config.winget) {
     Write-Host "Installiere oder aktualisiere: $($app.name) [$($app.id)]"
 
-    winget install `
+    $scopeArgs = @()
+    if ($app.scope -eq "machine") {
+        $scopeArgs = @("--scope", "machine")
+    }
+
+    & winget install `
         --id $app.id `
         --exact `
         --silent `
+        --disable-interactivity `
         --accept-package-agreements `
-        --accept-source-agreements
+        --accept-source-agreements `
+        @scopeArgs
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Install nicht erfolgreich oder bereits installiert. Versuche Upgrade: $($app.id)"
 
-        winget upgrade `
+        & winget upgrade `
             --id $app.id `
             --exact `
             --silent `
+            --disable-interactivity `
             --accept-package-agreements `
-            --accept-source-agreements
+            --accept-source-agreements `
+            @scopeArgs
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "winget install/upgrade failed for $($app.id) with code $LASTEXITCODE"
+        }
     }
 }
 
