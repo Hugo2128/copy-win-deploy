@@ -75,16 +75,37 @@ try {
 
     Write-Host "Neuer Commit erkannt: $CurrentCommit"
 
+    $phaseFailures = @()
+
     if ($maintenance.runWinget -eq $true) {
-        & "$RepoPath\scripts\Install-Apps.ps1"
+        try {
+            & "$RepoPath\scripts\Install-Apps.ps1"
+        } catch {
+            $phaseFailures += "Apps: $($_.Exception.Message)"
+            Write-Warning "Apps phase failed: $($_.Exception.Message)"
+        }
     }
 
     if ($maintenance.runOffice -eq $true) {
-        & "$RepoPath\scripts\Install-Office.ps1"
+        try {
+            & "$RepoPath\scripts\Install-Office.ps1"
+        } catch {
+            $phaseFailures += "Office: $($_.Exception.Message)"
+            Write-Warning "Office phase failed: $($_.Exception.Message)"
+        }
     }
 
     if ($maintenance.runDrivers -eq $true) {
-        & "$RepoPath\scripts\Install-Drivers.ps1"
+        try {
+            & "$RepoPath\scripts\Install-Drivers.ps1"
+        } catch {
+            $phaseFailures += "Drivers: $($_.Exception.Message)"
+            Write-Warning "Drivers phase failed: $($_.Exception.Message)"
+        }
+    }
+
+    if ($phaseFailures.Count -gt 0) {
+        throw ("Deployment phase failures:`n" + ($phaseFailures -join "`n"))
     }
 
     if ($LASTEXITCODE -eq 0 -or $null -eq $LASTEXITCODE) {

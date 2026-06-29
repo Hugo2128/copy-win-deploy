@@ -64,6 +64,43 @@ function Install-ChocolateyPackage {
     }
 }
 
+function Install-WingetPackage {
+    param($App)
+
+    $scopeArgs = @()
+    if ($App.scope -eq "machine") {
+        $scopeArgs = @("--scope", "machine")
+    }
+
+    & winget install `
+        --id $App.id `
+        --exact `
+        --source winget `
+        --silent `
+        --disable-interactivity `
+        --accept-package-agreements `
+        --accept-source-agreements `
+        @scopeArgs
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Install nicht erfolgreich oder bereits installiert. Versuche Upgrade: $($App.id)"
+
+        & winget upgrade `
+            --id $App.id `
+            --exact `
+            --source winget `
+            --silent `
+            --disable-interactivity `
+            --accept-package-agreements `
+            --accept-source-agreements `
+            @scopeArgs
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "winget install/upgrade failed for $($App.id) with code $LASTEXITCODE"
+        }
+    }
+}
+
 Write-Host "Aktualisiere winget Quellen..."
 winget source update
 
@@ -75,7 +112,12 @@ $failures = @()
 foreach ($app in $config.chocolatey) {
     try {
         Write-Host "Installiere oder aktualisiere: $($app.name) [$($app.id)]"
-        Install-ChocolateyPackage -App $app
+
+        if ($app.manager -eq "winget") {
+            Install-WingetPackage -App $app
+        } else {
+            Install-ChocolateyPackage -App $app
+        }
     } catch {
         $failures += "$($app.name): $($_.Exception.Message)"
         Write-Warning "Failed: $($app.name) - $($_.Exception.Message)"

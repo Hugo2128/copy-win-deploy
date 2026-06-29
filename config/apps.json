@@ -6,9 +6,10 @@
       "params": ""
     },
     {
-      "id": "googlechrome",
+      "id": "Google.Chrome",
       "name": "Google Chrome",
-      "params": ""
+      "manager": "winget",
+      "scope": "machine"
     },
     {
       "id": "firefox",
@@ -21,9 +22,10 @@
       "params": ""
     },
     {
-      "id": "adobereader",
+      "id": "Adobe.Acrobat.Reader.64-bit",
       "name": "Adobe Acrobat Reader",
-      "params": ""
+      "manager": "winget",
+      "scope": "machine"
     }
   ],
 
