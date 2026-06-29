@@ -15,42 +15,75 @@ if (-not (Test-Path $ConfigPath)) {
 
 $config = Get-Content $ConfigPath -Raw | ConvertFrom-Json
 
-Write-Host "Aktualisiere winget Quellen..."
-winget source update
-
-foreach ($app in $config.winget) {
-    Write-Host "Installiere oder aktualisiere: $($app.name) [$($app.id)]"
-
-    $scopeArgs = @()
-    if ($app.scope -eq "machine") {
-        $scopeArgs = @("--scope", "machine")
+function Ensure-ChocolateyInstalled {
+    if (Get-Command choco.exe -ErrorAction SilentlyContinue) {
+        return
     }
 
+    Write-Host "Installiere Chocolatey via winget..."
     & winget install `
-        --id $app.id `
+        --id Chocolatey.Chocolatey `
         --exact `
+        --source winget `
         --silent `
         --disable-interactivity `
         --accept-package-agreements `
-        --accept-source-agreements `
-        @scopeArgs
+        --accept-source-agreements
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Install nicht erfolgreich oder bereits installiert. Versuche Upgrade: $($app.id)"
-
-        & winget upgrade `
-            --id $app.id `
-            --exact `
-            --silent `
-            --disable-interactivity `
-            --accept-package-agreements `
-            --accept-source-agreements `
-            @scopeArgs
-
-        if ($LASTEXITCODE -ne 0) {
-            throw "winget install/upgrade failed for $($app.id) with code $LASTEXITCODE"
+    if (-not (Get-Command choco.exe -ErrorAction SilentlyContinue)) {
+        $chocoCmd = Get-ChildItem -Path "C:\ProgramData\chocolatey\bin\choco.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($chocoCmd) {
+            $env:PATH = "$($chocoCmd.Directory.FullName);$env:PATH"
         }
     }
+
+    if (-not (Get-Command choco.exe -ErrorAction SilentlyContinue)) {
+        throw "Chocolatey installation via winget failed."
+    }
+}
+
+function Install-ChocolateyPackage {
+    param($App)
+
+    $arguments = @(
+        "upgrade",
+        $App.id,
+        "-y",
+        "--no-progress",
+        "--limit-output"
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($App.params)) {
+        $arguments += "--params"
+        $arguments += $App.params
+    }
+
+    $process = Start-Process -FilePath "choco.exe" -ArgumentList $arguments -Wait -PassThru -NoNewWindow
+    if ($process.ExitCode -ne 0) {
+        throw "Chocolatey install/upgrade failed for $($App.id) with code $($process.ExitCode)"
+    }
+}
+
+Write-Host "Aktualisiere winget Quellen..."
+winget source update
+
+Ensure-ChocolateyInstalled
+$env:ChocolateyUseWindowsCompression = "false"
+
+$failures = @()
+
+foreach ($app in $config.chocolatey) {
+    try {
+        Write-Host "Installiere oder aktualisiere: $($app.name) [$($app.id)]"
+        Install-ChocolateyPackage -App $app
+    } catch {
+        $failures += "$($app.name): $($_.Exception.Message)"
+        Write-Warning "Failed: $($app.name) - $($_.Exception.Message)"
+    }
+}
+
+if ($failures.Count -gt 0) {
+    throw ("Application install failures:`n" + ($failures -join "`n"))
 }
 
 Write-Host "Softwareinstallation abgeschlossen."

@@ -1,29 +1,29 @@
 {
-  "winget": [
+  "chocolatey": [
     {
-      "id": "RustDesk.RustDesk",
+      "id": "rustdesk",
       "name": "RustDesk",
-      "scope": "machine"
+      "params": ""
     },
     {
-      "id": "Google.Chrome",
+      "id": "googlechrome",
       "name": "Google Chrome",
-      "scope": "machine"
+      "params": ""
     },
     {
-      "id": "Mozilla.Firefox",
+      "id": "firefox",
       "name": "Mozilla Firefox",
-      "scope": "machine"
+      "params": ""
     },
     {
-      "id": "7zip.7zip",
+      "id": "7zip",
       "name": "7-Zip",
-      "scope": "machine"
+      "params": ""
     },
     {
-      "id": "Adobe.Acrobat.Reader.64-bit",
+      "id": "adobereader",
       "name": "Adobe Acrobat Reader",
-      "scope": "machine"
+      "params": ""
     }
   ],
 
