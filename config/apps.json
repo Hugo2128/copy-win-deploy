@@ -28,7 +28,7 @@
   ],
 
   "office": {
-    "enabled": false,
+    "enabled": true,
     "odtUrl": "https://officecdn.microsoft.com/pr/wsus/setup.exe",
     "configPath": "repo\\config\\office-2024.xml",
     "keyFile": "secrets\\office-key.txt",

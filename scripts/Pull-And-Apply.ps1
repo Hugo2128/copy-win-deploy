@@ -22,10 +22,26 @@ $LogFile = Join-Path $LogPath ("maintenance-" + (Get-Date -Format "yyyy-MM-dd-HH
 
 Start-Transcript -Path $LogFile -Append
 
+function Wait-ForInternet {
+    $deadline = (Get-Date).AddMinutes(10)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            Invoke-WebRequest -Uri "https://github.com" -Method Head -UseBasicParsing -TimeoutSec 10 | Out-Null
+            return
+        } catch {
+            Start-Sleep -Seconds 5
+        }
+    }
+
+    throw "Internet connection did not become available in time for Pull-And-Apply."
+}
+
 try {
     if (-not (Test-Path $RepoPath)) {
         throw "Repo nicht gefunden: $RepoPath"
     }
+
+    Wait-ForInternet
 
     Set-Location $RepoPath
 

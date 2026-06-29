@@ -2,7 +2,7 @@
   "enabled": true,
   "runWinget": true,
   "runWindowsUpdates": false,
-  "runOffice": false,
+  "runOffice": true,
   "runDrivers": false,
   "forceApply": false
 }
